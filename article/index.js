@@ -11,16 +11,20 @@ app.get("/api/1.0/articles", (req, res) => {
   res.send(articles);
 })
 
-app.post("/api/1.0/articles", (req, res) => {
+app.post("/api/1.0/articles", async (req, res) => {
   const authorization = req.headers.authorization
   const token = authorization.substring(7);
-  const result = jwt.verify(token, "this-is-our-secret")
-  const article = {
-    ...req.body,
-    userId: result.id
+  try {
+    const result = jwt.verify(token, "this-is-our-secret")
+    const article = {
+      ...req.body,
+      userId: result.id
+    }
+    articles.push(article);
+    res.send({message: "Success"})
+  } catch (err){
+    res.status(403).send({message: "Invalid token"})
   }
-  articles.push(article);
-  res.send({message: "Success"})
 })
 
 app.listen(3001, () => {
